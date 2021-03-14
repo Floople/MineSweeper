@@ -66,14 +66,14 @@ def basicAgent(board:list, agentView:list, row:int, col:int):
     # check cell
     # if cell is a mine
     if board[row][col] == -1:
-        agentView[row][col] == -1
-
-    # if cell is 0, aka no mines around, mark cell and surrounding cells as safe (safe = -2)
+        agentView[row][col] = -1
+    # if cell is 0, aka no mines around, mark cell and all surrounding cells as safe (safe = -2)
     elif board[row][col] == 0:
+        agentView[row][col] = 0
         # mark all surrounding cells safe
         neighbors = 0
         # corner cells
-        if row == 0 & col == 0 | row == 0 & col == len(board[0])-1 | row == len(board)-1 & col == 0 | row == len(board)-1 & col == len(board[0])-1:
+        if (row == 0 & col == 0) | (row == 0 & col == len(board[0])-1) | (row == len(board)-1 & col == 0) | (row == len(board)-1 & col == len(board[0])-1):
             neighbors = 3
         # edge cells
         elif row == 0 | col == 0 | row == len(board)-1 | col == len(board[0])-1:
@@ -81,16 +81,14 @@ def basicAgent(board:list, agentView:list, row:int, col:int):
         # middle cells
         else:
             neighbors = 8
-        if board[row][col] == neighbors:
-            markAllNeighbors(board, agentView, row, col, neighbors, -2)
-
+        agentView = markAllNeighbors(board, agentView, row, col, neighbors, -2)
     # if cell is safe but not 0, mark with number of mines surrounding
     else:
         agentView[row][col] = board[row][col]
-        # if number of mines == number of neighbors, mark all neighbors as mines
+        # if number of mines = number of neighbors, mark all neighbors as mines
         neighbors = 0
         # corner cells
-        if row == 0 & col == 0 | row == 0 & col == len(board[0])-1 | row == len(board)-1 & col == 0 | row == len(board)-1 & col == len(board[0])-1:
+        if (row == 0 & col == 0) | (row == 0 & col == len(board[0])-1) | (row == len(board)-1 & col == 0) | (row == len(board)-1 & col == len(board[0])-1):
             neighbors = 3
         # edge cells
         elif row == 0 | col == 0 | row == len(board)-1 | col == len(board[0])-1:
@@ -99,30 +97,36 @@ def basicAgent(board:list, agentView:list, row:int, col:int):
         else:
             neighbors = 8
         if board[row][col] == neighbors:
-            markAllNeighbors(board, agentView, row, col, neighbors, -1)
+            agentView = markAllNeighbors(board, agentView, row, col, neighbors, -1)
 
+    print("checkpoint")
     for r in agentView:
         print(r)
+    print()
 
     # check if board has all been uncovered
     allVisited = True
-    for r in range(agentView):
-        for c in range(agentView[0]):
+    for r in range(len(agentView)):
+        for c in range(len(agentView[0])):
             if agentView[r][c] == False:
-                allVisited == False
+                allVisited = False
                 break
     # if everything has been uncovered, return agentView
+    #print(allVisited)
     if allVisited:
         return agentView
 
     # pick next cell
     # if safe cell available, pick next available safe cell
     safeCell = False
-    for r in range(agentView):
-        for c in range(agentView[0]):
+    for r in range(len(agentView)):
+        for c in range(len(agentView[0])):
             if agentView[r][c] == -2:
-                safeCell == True
+                safeCell = True
                 break
+    print(safeCell)
+    print("safeCell: " + str(r) + ", " + str(c))
+    print()
     if safeCell:
         newRow = r
         newCol = c
@@ -148,24 +152,23 @@ def markAllNeighbors(board:list, agentView:list, row:int, col:int, neighbors:int
             agentView[row+1][col] = x
             agentView[row+1][col+1] = x
         # upper right corner
-        if row == 0 & col == len(board[0])-1:
+        elif row == 0 & col == len(board[0])-1:
             agentView[row][col-1] = x
             agentView[row+1][col] = x
             agentView[row+1][col-1] = x
         # lower left corner
-        if row == len(board)-1 & col == 0:
+        elif row == len(board)-1 & col == 0:
             agentView[row-1][col] = x
             agentView[row][col+1] = x
             agentView[row-1][col+1] = x
         # lower right corner
-        if row == len(board)-1 & col == len(board[0])-1:
+        elif row == len(board)-1 & col == len(board[0])-1:
             agentView[row][col-1] = x
             agentView[row-1][col] = x
             agentView[row-1][col-1] = x
 
     # edge cells
-    elif row == 0 | col == 0 | row == len(board)-1 | col == len(board[0])-1:
-        neighbors = 5
+    elif neighbors == 5:
         if board[row][col] == neighbors:
             # top edge
             if row == 0:
@@ -175,21 +178,21 @@ def markAllNeighbors(board:list, agentView:list, row:int, col:int, neighbors:int
                 agentView[row+1][col+1] = x
                 agentView[row][col+1] = x
             # left edge
-            if col == 0:
+            elif col == 0:
                 agentView[row-1][col] = x
                 agentView[row-1][col+1] = x
                 agentView[row][col+1] = x
                 agentView[row+1][col+1] = x
                 agentView[row+1][col] = x
             # bottom edge
-            if row == len(board)-1:
+            elif row == len(board)-1:
                 agentView[row][col-1] = x
                 agentView[row-1][col-1] = x
                 agentView[row-1][col] = x
                 agentView[row-1][col+1] = x
                 agentView[row][col+1] = x
             # right edge
-            if col == len(board[0])-1:
+            elif col == len(board[0])-1:
                 agentView[row-1][col] = x
                 agentView[row-1][col-1] = x
                 agentView[row][col-1] = x
@@ -207,14 +210,17 @@ def markAllNeighbors(board:list, agentView:list, row:int, col:int, neighbors:int
             agentView[row+1][col-1] = x
             agentView[row][col-1] = x
             agentView[row-1][col-1] = x
+    
+    return agentView
 
 def main():
     board = makeBoard(5,5,3)
     for r in board:
         print(r)
-    agentView = [[False for i in range(board)] for j in range(board[0])]
+    print()
+    agentView = [[False for c in range(len(board))] for r in range(len(board[0]))]
     basicAgent(board, agentView, 0, 0)
-    for r in agentView:
-        print(r)
+    #for r in agentView:
+    #    print(r)
 
 main()
