@@ -6,7 +6,6 @@ def makeBoard(rows:int, cols:int, mines:int):
     while mines > 0:
         rowsRand = random.randint(0,rows - 1)
         colsRand = random.randint(0,cols -1)
-        print(rowsRand,colsRand)
         if(board[rowsRand][colsRand] != -1):
             board[rowsRand][colsRand] = -1
             mines -= 1
@@ -62,49 +61,208 @@ def checkNeighbors(rows:int, cols:int, board:list):
             counter += 1
     return counter
 
+def verifyBomb(rows:int, cols:int, agentView:list):
+    mineCounter = 0
+    hiddenCounter = 0
+    if(agentView[rows][cols] == 'x' or agentView[rows][cols] <= 0):
+        return False
+    topLeftRows = rows - 1
+    topLeftCols = cols - 1
+    if(topLeftRows >= 0 and topLeftRows < len(agentView)) and (topLeftCols >= 0 and topLeftCols < len(agentView[0])):
+        if(agentView[topLeftRows][topLeftCols] == -1 or agentView[topLeftRows][topLeftCols] == -3):
+            mineCounter += 1
+        elif(agentView[topLeftRows][topLeftCols] == 'x'):
+            hiddenCounter += 1
+    topRows = rows - 1
+    topCols = cols
+    if(topRows >= 0 and topRows < len(agentView)) and (topCols >= 0 and topCols < len(agentView[0])):
+        if(agentView[topRows][topCols] == -1 or agentView[topRows][topCols] == -3):
+            mineCounter += 1
+        elif(agentView[topRows][topCols] == 'x'):
+            hiddenCounter += 1
+    topRightRows = rows - 1
+    topRightCols = cols + 1
+    if(topRightRows >= 0 and topRightRows < len(agentView)) and (topRightCols >= 0 and topRightCols < len(agentView[0])):
+        if(agentView[topRightRows][topRightCols] == -1 or agentView[topRightRows][topRightCols] == -3):
+            mineCounter += 1
+        elif(agentView[topRightRows][topRightCols] == 'x'):
+            hiddenCounter += 1
+    BotLeftRows = rows + 1
+    BotLeftCols = cols - 1
+    if(BotLeftRows >= 0 and BotLeftRows < len(agentView)) and (BotLeftCols >= 0 and BotLeftCols < len(agentView[0])):
+        if(agentView[BotLeftRows][BotLeftCols] == -1 or agentView[BotLeftRows][BotLeftCols] == -3):
+            mineCounter += 1
+        elif(agentView[BotLeftRows][BotLeftCols] == 'x'):
+            hiddenCounter += 1
+    BotRows = rows + 1
+    BotCols = cols
+    if(BotRows >= 0 and BotRows < len(agentView)) and (BotCols >= 0 and BotCols < len(agentView[0])):
+        if(agentView[BotRows][BotCols] == -1 or agentView[BotRows][BotCols] == -3):
+            mineCounter += 1
+        elif(agentView[BotRows][BotCols] == 'x'):
+            hiddenCounter += 1
+    BotRightRows = rows + 1
+    BotRightCols = cols + 1
+    if(BotRightRows >= 0 and BotRightRows < len(agentView)) and (BotRightCols >= 0 and BotRightCols < len(agentView[0])):
+        if(agentView[BotRightRows][BotRightCols] == -1 or agentView[BotRightRows][BotRightCols] == -3):
+            mineCounter += 1
+        elif(agentView[BotRightRows][BotRightCols] == 'x'):
+            hiddenCounter += 1
+    leftRows = rows
+    leftCols = cols -1
+    if(leftRows >= 0 and leftRows < len(agentView)) and (leftCols >= 0 and leftCols < len(agentView[0])):
+        if(agentView[leftRows][leftCols] == -1 or agentView[leftRows][leftCols] == -3):
+            mineCounter += 1
+        elif(agentView[leftRows][leftCols] == 'x'):
+            hiddenCounter += 1
+    rightRows = rows
+    rightCols = cols + 1
+    if(rightRows >= 0 and rightRows < len(agentView)) and (rightCols >= 0 and rightCols < len(agentView[0])):
+        if(agentView[rightRows][rightCols] == -1 or agentView[rightRows][rightCols] == -3):
+            mineCounter += 1
+        elif(agentView[rightRows][rightCols] == 'x'):
+            hiddenCounter += 1
+    
+    if(agentView[rows][cols] - mineCounter == hiddenCounter):
+        return True
+    return False
+
+def verifySafe(rows:int, cols:int, agentView:list, prints:bool):
+    neighborCounter = 0
+    hiddenCounter = 0
+    if(agentView[rows][cols] == 'x' or agentView[rows][cols] <= 0):
+        return False
+    topLeftRows = rows - 1
+    topLeftCols = cols - 1
+    if(topLeftRows < 0 or topLeftRows >= len(agentView)) or (topLeftCols < 0 or topLeftCols >= len(agentView[0])):
+        neighborCounter += 1
+    elif(topLeftRows >= 0 and topLeftRows < len(agentView)) and (topLeftCols >= 0 and topLeftCols < len(agentView[0])):
+        if(agentView[topLeftRows][topLeftCols] == 'x'):
+            hiddenCounter += 1
+        elif(agentView[topLeftRows][topLeftCols] >= 0 or agentView[topLeftRows][topLeftCols] == -2):
+            neighborCounter += 1
+    topRows = rows - 1
+    topCols = cols
+    if(topRows < 0 or topRows >= len(agentView)) or (topCols < 0 or topCols >= len(agentView[0])):
+        neighborCounter += 1
+    elif(topRows >= 0 and topRows < len(agentView)) and (topCols >= 0 and topCols < len(agentView[0])):
+        if(agentView[topRows][topCols] == 'x'):
+            hiddenCounter += 1
+        elif(agentView[topRows][topCols] >= 0 or agentView[topRows][topCols] == -2):
+            neighborCounter += 1
+    topRightRows = rows - 1
+    topRightCols = cols + 1
+    if(topRightRows < 0 or topRightRows >= len(agentView)) or (topRightCols < 0 or topRightCols >= len(agentView[0])):
+        neighborCounter += 1
+    elif(topRightRows >= 0 and topRightRows < len(agentView)) and (topRightCols >= 0 and topRightCols < len(agentView[0])):
+        if(agentView[topRightRows][topRightCols] == 'x'):
+            hiddenCounter += 1
+        elif(agentView[topRightRows][topRightCols] >= 0 or agentView[topRightRows][topRightCols] == -2):
+            neighborCounter += 1
+    BotLeftRows = rows + 1
+    BotLeftCols = cols - 1
+    if(BotLeftRows < 0 or BotLeftRows >= len(agentView)) or (BotLeftCols < 0 or BotLeftCols >= len(agentView[0])):
+        neighborCounter += 1
+    elif(BotLeftRows >= 0 and BotLeftRows < len(agentView)) and (BotLeftCols >= 0 and BotLeftCols < len(agentView[0])):
+        if(agentView[BotLeftRows][BotLeftCols] == 'x'):
+            hiddenCounter += 1
+        elif(agentView[BotLeftRows][BotLeftCols] >= 0 or agentView[BotLeftRows][BotLeftCols] == -2):
+            neighborCounter += 1
+    BotRows = rows + 1
+    BotCols = cols
+    if(BotRows < 0 or BotRows >= len(agentView)) or (BotCols < 0 or BotCols >= len(agentView[0])):
+        neighborCounter += 1
+    elif(BotRows >= 0 and BotRows < len(agentView)) and (BotCols >= 0 and BotCols < len(agentView[0])):
+        if(agentView[BotRows][BotCols] == 'x'):
+            hiddenCounter += 1
+        elif(agentView[BotRows][BotCols] >= 0 or agentView[BotRows][BotCols] == -2):
+            neighborCounter += 1
+    BotRightRows = rows + 1
+    BotRightCols = cols + 1
+    if(BotRightRows < 0 or BotRightRows >= len(agentView)) or (BotRightCols < 0 or BotRightCols >= len(agentView[0])):
+        neighborCounter += 1
+    elif(BotRightRows >= 0 and BotRightRows < len(agentView)) and (BotRightCols >= 0 and BotRightCols < len(agentView[0])):
+        if(agentView[BotRightRows][BotRightCols] == 'x'):
+            hiddenCounter += 1
+        elif(agentView[BotRightRows][BotRightCols] >= 0 or agentView[BotRightRows][BotRightCols] == -2):
+            neighborCounter += 1
+    leftRows = rows
+    leftCols = cols -1
+    if(leftRows < 0 or leftRows >= len(agentView)) or (leftCols < 0 or leftCols >= len(agentView[0])):
+        neighborCounter += 1
+    elif(leftRows >= 0 and leftRows < len(agentView)) and (leftCols >= 0 and leftCols < len(agentView[0])):
+        if(agentView[leftRows][leftCols] == 'x'):
+            hiddenCounter += 1
+        elif(agentView[leftRows][leftCols] >= 0 or agentView[leftRows][leftCols] == -2):
+            neighborCounter += 1
+    rightRows = rows
+    rightCols = cols + 1
+    if(rightRows < 0 or rightRows >= len(agentView)) or (rightCols < 0 or rightCols >= len(agentView[0])):
+        neighborCounter += 1
+    if(rightRows >= 0 and rightRows < len(agentView)) and (rightCols >= 0 and rightCols < len(agentView[0])):
+        if(agentView[rightRows][rightCols] == 'x'):
+            hiddenCounter += 1
+        elif(agentView[rightRows][rightCols] >= 0 or agentView[rightRows][rightCols] == -2):
+            neighborCounter += 1
+    #print("Neighbor Count:" + str(neighborCounter))
+    #print("Hidden Count: " + str(hiddenCounter))
+    #print("Clue: " + str(agentView[rows][cols]))
+    if(8 - agentView[rows][cols] - neighborCounter == hiddenCounter):
+        return True
+    
+    return False
 def basicAgent(board:list):
     # to store information agent knows
     agentView = [["x" for c in range(len(board))] for r in range(len(board[0]))]
-
+    points = 0
+    wrong = 0
     # check if board has all been uncovered
     agent = True
-    row = 0
-    col = 0
-
+    row = random.randint(0, len(agentView) - 1)
+    col = random.randint(0, len(agentView[0]) -1)
+    tempCounter = 0
     while agent:
-        # check if board has all been uncovered
-        allVisited = True
-        for r in range(len(agentView)):
-            for c in range(len(agentView[0])):
-                if agentView[r][c] == "x":
-                    allVisited = False
-                    break
-            if not allVisited:
-                break
-        if allVisited:
-            agent = False
-            return agentView
-
+        # check if marked correctly, add point if it did
+        if(agentView[row][col] == -3 and board[row][col] == -1):
+            points += 1
+        if(agentView[row][col] == -3 and board[row][col] != -1):
+            wrong += 1
         # mark cell
         agentView[row][col] = board[row][col]
         
         # find surrounding cells
         # corner cells
-        if (row == 0 and col == 0) or (row == 0 and col == len(board[0])-1) or (row == len(board)-1 and col == 0) or (row == len(board)-1 and col == len(board[0])-1):
-            neighbors = 3
-        # edge cells
-        elif row == 0 or col == 0 or row == len(board)-1 or col == len(board[0])-1:
-            neighbors = 5
-        # middle cells
-        else:
-            neighbors = 8
+        neighbors = findNeighbors(row,col,board)
+        # if (row == 0 and col == 0) or (row == 0 and col == len(board[0])-1) or (row == len(board)-1 and col == 0) or (row == len(board)-1 and col == len(board[0])-1):
+        #     neighbors = 3
+        # # edge cells
+        # elif row == 0 or col == 0 or row == len(board)-1 or col == len(board[0])-1:
+        #     neighbors = 5
+        # # middle cells
+        # else:
+        #     neighbors = 8
         
         # if cell is 0, mark all surrounding cells as safe (-2)
         if board[row][col] == 0:
             agentView = markAllNeighbors(agentView, row, col, neighbors, -2)
         # if number of mines = number of surroundng cells, mark all surrounding cells as mines
-        if board[row][col] == neighbors:
-            agentView = markAllNeighbors(agentView, row, col, neighbors, -1)
+        for r in range(len(board)):
+            for c in range(len(board[0])):
+                if(verifyBomb(r,c,agentView)):
+                    neighbors = findNeighbors(r,c,board)
+                    agentView = markAllNeighbors(agentView, r, c, neighbors, -3)
+        # if number of safe neighbors minus number of revealed safe neighbors = hidden, mark all surrounding cells as safe
+        # print("After Verify Bomb")
+        # for r in agentView:
+        #     print(r)
+        for r in range(len(board)):
+            for c in range(len(board[0])):
+                if(verifySafe(r,c,agentView,tempCounter < 4)):
+                    neighbors = findNeighbors(r,c,board)
+                    agentView = markAllNeighbors(agentView, r, c, neighbors, -2)
+                    # print("In safe")
+                    # for s in agentView:
+                    #     print(s)
 
         ### CHECKPOINT FOR TESTING
         # print(row, col)
@@ -116,16 +274,16 @@ def basicAgent(board:list):
         # if safe cell available, pick next available safe cell
         row = 0
         col = 0
-        safeCell = False
+        nextReveal = False
         for r in range(len(agentView)):
             for c in range(len(agentView[0])):
-                if agentView[r][c] == -2:
-                    safeCell = True
+                if agentView[r][c] == -2 or agentView[r][c] == -3:
+                    nextReveal = True
                     break
-            if safeCell:
+            if nextReveal:
                 break
 
-        if safeCell:
+        if nextReveal:
             row = r
             col = c
         # otherwise, pick random
@@ -142,9 +300,39 @@ def basicAgent(board:list):
                 row = random.randint(0, len(agentView) - 1)
                 col = random.randint(0, len(agentView[0]) -1) 
                 cnt += 1
-    
+        # check if board has all been uncovered
+        for r in agentView:
+            print(r)
+        print()
+        allVisited = True
+        for r in range(len(agentView)):
+            for c in range(len(agentView[0])):
+                if agentView[r][c] == "x" or agentView[r][c] == -2 or agentView[r][c] == -3:
+                    allVisited = False
+                    break
+            if not allVisited:
+                break
+        if allVisited:
+            agent = False
+            print("Total points: " + str(points))
+            print("Total wrong : " + str(wrong))
+            return agentView
+        tempCounter += 1
+        
+    print("Total points: " + str(points))
+    print("Total wrong : " + str(wrong))
     return agentView
 
+def findNeighbors(row:int,col:int,board:list):
+    if (row == 0 and col == 0) or (row == 0 and col == len(board[0])-1) or (row == len(board)-1 and col == 0) or (row == len(board)-1 and col == len(board[0])-1):
+            neighbors = 3
+        # edge cells
+    elif row == 0 or col == 0 or row == len(board)-1 or col == len(board[0])-1:
+        neighbors = 5
+        # middle cells
+    else:
+        neighbors = 8
+    return neighbors
 def markAllNeighbors(agentView:list, row:int, col:int, neighbors:int, x:int):
     # x represents whether to mark all as safe or mark all as mines
     if neighbors == 3:
@@ -251,6 +439,9 @@ def markAllNeighbors(agentView:list, row:int, col:int, neighbors:int, x:int):
             agentView[row-1][col-1] = x
     
     return agentView
+
+#def improvedAgent(board:list):
+
 
 def main():
     board = makeBoard(5,5,5)
