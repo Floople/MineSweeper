@@ -1,5 +1,6 @@
 import random
 import math
+import sys
 
 def makeBoard(rows:int, cols:int, mines:int):
     board = [[0 for c in range(cols)] for r in range(rows)]
@@ -301,9 +302,9 @@ def basicAgent(board:list):
                 col = random.randint(0, len(agentView[0]) -1) 
                 cnt += 1
         # check if board has all been uncovered
-        for r in agentView:
-            print(r)
-        print()
+        # for r in agentView:
+        #     print(r)
+        # print()
         allVisited = True
         for r in range(len(agentView)):
             for c in range(len(agentView[0])):
@@ -314,14 +315,15 @@ def basicAgent(board:list):
                 break
         if allVisited:
             agent = False
-            print("Total points: " + str(points))
-            print("Total wrong : " + str(wrong))
-            return agentView
+            #print("Total points: " + str(points))
+            #print("Total wrong : " + str(wrong))
+            return points
+            #return agentView
         tempCounter += 1
         
-    print("Total points: " + str(points))
-    print("Total wrong : " + str(wrong))
-    return agentView
+    #print("Total points: " + str(points))
+    #print("Total wrong : " + str(wrong))
+    return points
 
 def findNeighbors(row:int,col:int,board:list):
     if (row == 0 and col == 0) or (row == 0 and col == len(board[0])-1) or (row == len(board)-1 and col == 0) or (row == len(board)-1 and col == len(board[0])-1):
@@ -440,17 +442,171 @@ def markAllNeighbors(agentView:list, row:int, col:int, neighbors:int, x:int):
     
     return agentView
 
-#def improvedAgent(board:list):
 
+def improvedAgent(board:list):
+    # to store information agent knows
+    agentView = [["x" for c in range(len(board))] for r in range(len(board[0]))]
+    points = 0
+    # check if board has all been uncovered
+    agent = True
+    row = random.randint(0, len(agentView) - 1)
+    col = random.randint(0, len(agentView[0]) -1)
+    tempCounter = 0
+    while agent:
+        # check if marked correctly, add point if it did
+        if(agentView[row][col] == -3 and board[row][col] == -1):
+            points += 1
+        # if(agentView[row][col] == -3 and board[row][col] != -1):
+        #     wrong += 1
+        # mark cell
+        agentView[row][col] = board[row][col]
+        
+        # find surrounding cells
+        neighbors = findNeighbors(row,col,board)
+        
+        # if cell is 0, mark all surrounding cells as safe (-2)
+        if board[row][col] == 0:
+            agentView = markAllNeighbors(agentView, row, col, neighbors, -2)
+        # if number of mines = number of surroundng cells, mark all surrounding cells as mines
+        for r in range(len(board)):
+            for c in range(len(board[0])):
+                if(verifyBomb(r,c,agentView)):
+                    neighbors = findNeighbors(r,c,board)
+                    agentView = markAllNeighbors(agentView, r, c, neighbors, -3)
+        # if number of safe neighbors minus number of revealed safe neighbors = hidden, mark all surrounding cells as safe
+        # print("After Verify Bomb")
+        # for r in agentView:
+        #     print(r)
+        for r in range(len(board)):
+            for c in range(len(board[0])):
+                if(verifySafe(r,c,agentView,tempCounter < 4)):
+                    neighbors = findNeighbors(r,c,board)
+                    agentView = markAllNeighbors(agentView, r, c, neighbors, -2)
+                    # print("In safe")
+                    # for s in agentView:
+                    #     print(s)
 
+        ### CHECKPOINT FOR TESTING
+        # print(row, col)
+        # for r in agentView:
+        #     print(r)
+        # print()
+
+        # pick next cell
+        # if safe cell available, pick next available safe cell
+        nextReveal = False
+        for r in range(len(agentView)):
+            for c in range(len(agentView[0])):
+                if agentView[r][c] == -2 or agentView[r][c] == -3:
+                    nextReveal = True
+                    break
+            if nextReveal:
+                break
+
+        if nextReveal:
+            row = r
+            col = c
+        # otherwise, pick lowest probability
+        else:
+            # cnt = 0
+            # total = (len(agentView)-1) * (len(agentView[0])-1)
+            # visited = True
+            # while visited:
+            #     if agentView[row][col] == "x":
+            #         visited = False
+            #         break
+            #     if cnt == total:
+            #         break
+                #gets smallest probability
+            lowestProbability = sys.float_info.max
+            for r in range(len(agentView)):
+                for c in range(len(agentView[0])):
+                    if(agentView[r][c]) == "x":
+                        probability = 0
+                        revealedNeighbors = 0
+                        #get all neighbors and check bomb and stuff
+                        def findProbability(row:int, col:int):
+                            #clue - mines / hidden
+                            clue = agentView[row][col]
+                            if(clue != "x" and clue > 0):
+                                nonlocal probability
+                                nonlocal revealedNeighbors
+                                revealedNeighbors += 1
+                                mines = 0
+                                hidden = 0
+                                def countNeighbors(row:int,col:int):
+                                    nonlocal mines
+                                    nonlocal hidden
+                                    if(agentView[row][col] == -1 or agentView[row][col] == -3):
+                                        mines += 1
+                                    elif(agentView[row][col] == "x"):
+                                        hidden += 1
+                                forEachNeighbor(row,col,agentView, countNeighbors)
+                                probability += (clue - mines) / hidden      
+                        forEachNeighbor(r,c,agentView,findProbability)
+                        if(revealedNeighbors > 0):
+                            probability = probability / revealedNeighbors
+                            if(probability < lowestProbability):
+                                row = r
+                                col = c
+                                lowestProbability = probability
+                                #print("lowest found at: " + str(row) + "," + str(col) + " and is " + str(lowestProbability))
+            if(lowestProbability == sys.float_info.max or lowestProbability == 0):
+                row = random.randint(0, len(agentView) - 1)
+                col = random.randint(0, len(agentView[0]) -1)
+            #print("lowest probability at end is: " + str(lowestProbability))
+            #print("Next cell will be: " + str(row) + "," + str(col))
+        # check if board has all been uncovered
+        # for r in agentView:
+        #     print(r)
+        allVisited = True
+        for r in range(len(agentView)):
+            for c in range(len(agentView[0])):
+                if agentView[r][c] == "x" or agentView[r][c] == -2 or agentView[r][c] == -3:
+                    allVisited = False
+                    break
+            if not allVisited:
+                break
+        if allVisited:
+            agent = False
+            #print("Total points: " + str(points))
+            #print("Total wrong : " + str(wrong))
+            #return agentView
+            return points
+        tempCounter += 1
+        
+    #print("Total points: " + str(points))
+    #print("Total wrong : " + str(wrong))
+    return points
+
+def forEachNeighbor(row:int,col:int, agentView:list, func):
+    neighbors = [(row - 1, col - 1), (row - 1, col), (row - 1, col + 1), (row, col - 1), (row, col + 1), (row + 1, col -1), (row + 1, col), (row + 1, col + 1)]
+    
+    for (neighborRow, neighborCol) in neighbors:
+        if(inBound(neighborRow, neighborCol,agentView)):
+            func(neighborRow, neighborCol)
+
+def inBound(row:int,col:int,agentView:list):
+    if(row >= 0 and row < len(agentView) and (col >= 0 and col < len(agentView[0]))):
+        return True
+    else:
+        return False
 def main():
-    board = makeBoard(5,5,5)
-    for r in board:
-        print(r)
-    print()
-    agentView = basicAgent(board)
-    print("DONE")
-    for r in agentView:
-        print(r)
-
+    x = 0
+    totalOne = 0
+    totalTwo = 0
+    while x < 1001:
+        print(x)
+        board = makeBoard(10,10,15)
+        basicAgentView = basicAgent(board)
+        print(basicAgentView)
+        totalOne += basicAgentView
+        improvedAgentView = improvedAgent(board)
+        print(improvedAgentView)
+        totalTwo += improvedAgentView
+        x += 1
+    avgOne = totalOne / 1000
+    avgTwo = totalTwo / 1000
+    print("average points for basic agent was " + str(avgOne))
+    print("average points for improved agent was " + str(avgTwo))
 main()
