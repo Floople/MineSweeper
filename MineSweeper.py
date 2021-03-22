@@ -595,14 +595,16 @@ def main():
     x = 0
     totalOne = 0
     totalTwo = 0
+    d = 10
+    mineNum = 90
     while x < 1001:
-        print(x)
-        board = makeBoard(10,10,15)
+        #print(x)
+        board = makeBoard(d,d,mineNum)
         basicAgentView = basicAgent(board)
-        print(basicAgentView)
+        #print(basicAgentView)
         totalOne += basicAgentView
         improvedAgentView = improvedAgent(board)
-        print(improvedAgentView)
+        #print(improvedAgentView)
         totalTwo += improvedAgentView
         x += 1
     avgOne = totalOne / 1000
